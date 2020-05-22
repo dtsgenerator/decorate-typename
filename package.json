@@ -1,0 +1,44 @@
+{
+  "name": "@dtsgenerator/decorate-typename",
+  "version": "0.1.0",
+  "description": "PLEASE CHANGE THIS DESCRIPTION!!!",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint *.ts **/*.ts",
+    "lint:fix": "npm run lint -- --fix",
+    "precompile": "npm run lint",
+    "compile": "tsc -p .",
+    "watch": "npm run compile -- -w",
+    "build": "npm run compile",
+    "do-test": "cross-env TS_NODE_FILES=true mocha --exit --require ts-node/register --colors test/*_test.ts",
+    "test": "nyc npm run do-test",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test:update-snapshot": "UPDATE_SNAPSHOT=1 npm run do-test"
+  },
+  "keywords": [
+    "dtsgenerator",
+    "dtsgenerator-plugin"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.0.4",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "cross-env": "^7.0.2",
+    "dtsgenerator": "^2.6.0",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "mocha": "^7.1.2",
+    "nyc": "^15.0.1",
+    "prettier": "^2.0.5",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.3"
+  }
+}
