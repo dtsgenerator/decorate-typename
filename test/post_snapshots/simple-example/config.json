@@ -1,1 +1,10 @@
-true
+{
+  "interface": {
+    "prefix": "I",
+    "postfix": "_"
+  },
+  "type": {
+    "prefix": "T",
+    "postfix": "_"
+  }
+}

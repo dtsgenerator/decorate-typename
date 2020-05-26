@@ -1,7 +1,8 @@
 # @dtsgenerator/decorate-typename
 
 This is the `dtsgenerator` plugin.
-This plugin's description is here.
+Decorate the output typename.
+Such as it add the `I` prefix to the interface name.
 
 # Install
 
@@ -15,14 +16,19 @@ npm install @dtsgenerator/decorate-typename
 ```json
 {
     "plugins": {
-        "@dtsgenerator/decorate-typename": true, // or { config object }
+        "@dtsgenerator/decorate-typename": {
+            "interface": {
+                "prefix": "I"
+            },
+            "type": {
+                "prefix": "T"
+            }
+        }
     }
 }
 ```
 
 # Configuration
-
-<!-- If this plugin uses the config object this section is useful for plugin user. -->
 
 - the type of configuration
 ```
