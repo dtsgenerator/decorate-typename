@@ -32,34 +32,43 @@ npm install @dtsgenerator/decorate-typename
 
 - the type of configuration
 ```
-type Config = {
-    map: {
-        from: (string | boolean)[];
-        to: string[];
-    }[];
-};
+interface ConfigContent {
+    prefix?: string;
+    postfix?: string;
+}
+export type Config =
+    | {
+          interface: ConfigContent;
+          type: ConfigContent;
+      }
+    | ConfigContent;
 ```
 
 | key | type | description |
 |-----|------|-------------|
-| map | Array of object | the mapping of replacing. |
-| map.*n*.from | `Array<string | boolean>` | the definition of from name. if this value is true, it treated as wildcard . |
-| map.*n*.to | `Array<string | boolean>` | the definition of to name. |
+| prefix | string | the prefix of type name. |
+| postfix | string | the postfix of type name. |
+| interface | ConfigContent | the prefix and postfix apply to the interface name only. |
+| type | ConfigContent | the prefix and postfix apply to the type alias name only. |
 
 
 - Example
 ```
 {
-  "map": [
-    {
-      "from": ["Components", "Schemas"],
-      "to": ["Test", "PetStore"]
-    },
-    {
-      "from": ["Paths"],
-      "to": ["Test", "PetStore"]
-    }
-  ]
+  "prefix": "I",
+}
+```
+
+```
+{
+  "interface": {
+    "prefix": "I",
+    "postfix": "_"
+  },
+  "type": {
+    "prefix": "T",
+    "postfix": "_"
+  }
 }
 ```
 
