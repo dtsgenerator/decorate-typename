@@ -19,9 +19,9 @@ interface ConfigContent {
 }
 export type Config =
     | {
-          interface: ConfigContent;
-          type: ConfigContent;
-      }
+        interface: ConfigContent;
+        type: ConfigContent;
+    }
     | ConfigContent;
 
 /**
@@ -33,17 +33,16 @@ async function postProcess(
     return (context: ts.TransformationContext) => (
         root: ts.SourceFile
     ): ts.SourceFile => {
-        const config: Config = pluginContext.option;
-        if (config == null) {
+        const option = pluginContext.option;
+        if (option == null || typeof option === 'boolean') {
             return root;
         }
 
-        const program = createProgram(root, context.getCompilerOptions());
-        const checker = program.getTypeChecker();
+        const config = option as Config;
         const converted = new Map<string, string>();
 
-        root = convertTypeName(context, root, config, checker, converted);
-        root = convertReference(context, root, checker, converted);
+        root = convertTypeName(context, root, config, converted);
+        root = convertReference(context, root, converted);
         return root;
     };
 }
@@ -52,22 +51,20 @@ function convertTypeName(
     context: ts.TransformationContext,
     root: ts.SourceFile,
     config: Config,
-    checker: ts.TypeChecker,
     converted: Map<string, string>
 ): ts.SourceFile {
+    const parents: ts.Node[] = [root];
     function visit(node: ts.Node): ts.Node {
+        parents.push(node);
         node = ts.visitEachChild(node, visit, context);
+        parents.pop();
         if (
             ts.isInterfaceDeclaration(node) ||
             ts.isTypeAliasDeclaration(node)
         ) {
-            const type = checker.getTypeAtLocation(node);
-            const symbol = type.getSymbol();
-            if (symbol != null) {
-                const key = checker.getFullyQualifiedName(symbol);
-                const value = changeTypeName(node, config);
-                converted.set(key, value);
-            }
+            const key = getFullyTypeName(node, parents);
+            const value = changeTypeName(node, config);
+            converted.set(key, value);
         }
         return node;
     }
@@ -77,20 +74,19 @@ function convertTypeName(
 function convertReference(
     context: ts.TransformationContext,
     root: ts.SourceFile,
-    checker: ts.TypeChecker,
     converted: Map<string, string>
 ): ts.SourceFile {
+    const parents: ts.Node[] = [root];
     function visit(node: ts.Node): ts.Node {
+        parents.push(node);
         node = ts.visitEachChild(node, visit, context);
+        parents.pop();
         if (ts.isTypeReferenceNode(node)) {
-            const type = checker.getTypeAtLocation(node);
-            const symbol = type.getSymbol();
-            if (symbol != null) {
-                const key = checker.getFullyQualifiedName(symbol);
-                const value = converted.get(key);
-                if (value != null) {
-                    node = replaceTypeName(node.typeName, value);
-                }
+            const name = getTypeName(node.typeName);
+            const names = getBaseNames(parents);
+            const value = searchConvertedValue(converted, names, name);
+            if (value != null) {
+                node.typeName = replaceTypeName(node.typeName, value);
             }
         }
         return node;
@@ -98,19 +94,26 @@ function convertReference(
     return ts.visitNode(root, visit);
 }
 
-function createProgram(
-    root: ts.SourceFile,
-    options: ts.CompilerOptions
-): ts.Program {
-    const host = ts.createCompilerHost(options);
-    host.getSourceFile = (): ts.SourceFile => root;
-    return ts.createProgram([''], options, host);
+function searchConvertedValue(converted: Map<string, string>, baseNames: string[], nodeName: string): string | undefined {
+    const names = baseNames.concat();
+    for (;;) {
+        const name = names.concat(nodeName).join('.');
+        const value = converted.get(name);
+        if (value != null) {
+            return value;
+        }
+        if (names.length === 0) {
+            break;
+        }
+        names.pop();
+    }
+    return undefined;
 }
 
 function changeTypeName<
     T extends ts.InterfaceDeclaration | ts.TypeAliasDeclaration
 >(node: T, config: Config): string {
-    const name = node.name.getText();
+    const name = getName(node.name);
     function decorate(name: string, config: ConfigContent): string {
         if (config.prefix != null) {
             name = config.prefix + name;
@@ -134,16 +137,52 @@ function changeTypeName<
     return result;
 }
 
-function replaceTypeName(node: ts.EntityName, replaced: string): ts.EntityName {
-    function visit(node: ts.EntityName): ts.EntityName {
+function getTypeName(node: ts.EntityName): string {
+    const names: string[] = [];
+    function visit(node: ts.EntityName): void {
         if (ts.isIdentifier(node)) {
-            return ts.createIdentifier(replaced);
-        } else if (ts.isQualifiedName(node)) {
-            return visit(node.right);
+            names.push(getName(node));
+        } else {
+            visit(node.left);
+            visit(node.right);
         }
-        return node;
     }
-    return visit(node);
+    visit(node);
+    return names.join('.');
+}
+
+function replaceTypeName(node: ts.EntityName, replaced: string): ts.EntityName {
+    const result = ts.createIdentifier(replaced);
+    if (ts.isIdentifier(node)) {
+        return result;
+    } else {
+        return ts.createQualifiedName(node.left, result);
+    }
+}
+
+function getFullyTypeName(node: ts.InterfaceDeclaration | ts.TypeAliasDeclaration, parents: ts.Node[]): string {
+    const names = getBaseNames(parents);
+    names.push(getName(node.name));
+    return names.join('.');
+}
+
+function getBaseNames(parents: ts.Node[]): string[] {
+    const names: string[] = [];
+    for (const p of parents) {
+        if (ts.isModuleDeclaration(p)) {
+            const name = p.name;
+            if (ts.isIdentifier(name)) {
+                names.push(getName(name));
+            } else {
+                names.push(name.getText());
+            }
+        }
+    }
+    return names;
+}
+
+function getName(name: ts.Identifier): string {
+    return name.escapedText.toString();
 }
 
 export default plugin;

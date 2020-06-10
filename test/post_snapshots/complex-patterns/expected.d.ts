@@ -3,20 +3,20 @@ declare namespace JsonSchemaOrg {
         /**
          * complex patterns
          */
-        export interface Patterns {
-            p: Patterns.Definitions.Primitives;
-            pr: Patterns.Definitions.PrimitivesRequired;
-            ut?: Patterns.Definitions.UnionTuple;
-            at?: Patterns.Definitions.ArrayTypes;
-            nt?: Patterns.Definitions.NestedTypes;
-            ct?: Patterns.Definitions.CommentTest;
-            ta?: Patterns.Definitions.TypeAlias;
-            array?: Patterns.Definitions.TypeArray;
-            const?: Patterns.Definitions.MathPi | Patterns.Definitions.IsDebug | Patterns.Definitions.IsTest | Patterns.Definitions.ProjectName;
+        export interface _Patterns_ {
+            p: Patterns.Definitions._Primitives_;
+            pr: Patterns.Definitions._PrimitivesRequired_;
+            ut?: Patterns.Definitions._UnionTuple_;
+            at?: Patterns.Definitions._ArrayTypes_;
+            nt?: Patterns.Definitions._NestedTypes_;
+            ct?: Patterns.Definitions._CommentTest_;
+            ta?: Patterns.Definitions._TypeAlias_;
+            array?: Patterns.Definitions._TypeArray_;
+            const?: Patterns.Definitions._MathPi_ | Patterns.Definitions._IsDebug_ | Patterns.Definitions._IsTest_ | Patterns.Definitions._ProjectName_;
         }
         namespace Patterns {
             namespace Definitions {
-                export interface ArrayTypes {
+                export interface _ArrayTypes_ {
                     strings?: string[];
                     numbers?: number[];
                     arrays?: string[][][];
@@ -32,7 +32,7 @@ declare namespace JsonSchemaOrg {
                  *     p3: [ false, 1.23, 'tuple' ],
                  *   }
                  */
-                export interface CommentTest {
+                export interface _CommentTest_ {
                     /**
                      * p1 is string type.
                      */
@@ -52,17 +52,17 @@ declare namespace JsonSchemaOrg {
                      */
                     p3: [boolean, number, string?, ...any[]];
                 }
-                export type IsDebug = false;
-                export type IsTest = true;
-                export type MathPi = 3.1415926536;
-                export interface NestedTypes {
+                export type _IsDebug_ = false;
+                export type _IsTest_ = true;
+                export type _MathPi_ = 3.1415926536;
+                export interface _NestedTypes_ {
                     first: {
                         second: {
                             third: {};
                         };
                     };
                 }
-                export interface Primitives {
+                export interface _Primitives_ {
                     readonly any?: any;
                     array?: any[];
                     boolean?: boolean;
@@ -75,7 +75,7 @@ declare namespace JsonSchemaOrg {
                     string?: string;
                     undefined?: undefined;
                 }
-                export interface PrimitivesRequired {
+                export interface _PrimitivesRequired_ {
                     readonly any: any;
                     array: any[];
                     boolean: boolean;
@@ -88,20 +88,20 @@ declare namespace JsonSchemaOrg {
                     string: string;
                     undefined: undefined;
                 }
-                export type ProjectName = "dtsgenerator";
-                export type TypeAlias = Primitives | PrimitivesRequired;
-                export type TypeArray = {
+                export type _ProjectName_ = "dtsgenerator";
+                export type _TypeAlias_ = _Primitives_ | _PrimitivesRequired_;
+                export type _TypeArray_ = {
                     a: string;
                     b?: string;
                     n?: {
                         c: number;
                     }[];
                 }[];
-                export interface UnionTuple {
+                export interface _UnionTuple_ {
                     s_tuple?: "A" | "B" | "C";
                     n_tuple?: 1 | 2 | 3 | 4 | 5;
                     some_types?: boolean | number | string;
-                    ref_types?: Primitives | PrimitivesRequired;
+                    ref_types?: _Primitives_ | _PrimitivesRequired_;
                 }
             }
         }

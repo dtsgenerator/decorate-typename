@@ -2,14 +2,14 @@ declare namespace JsonSchemaOrg {
     /**
      * A geographical coordinate
      */
-    export interface Geo {
+    export interface IGeo_ {
         latitude?: number;
         longitude?: number;
     }
     /**
      * Product set
      */
-    export type SimpleExample = {
+    export type TSimpleExample_ = {
         /**
          * The unique identifier for a product
          */
@@ -25,6 +25,6 @@ declare namespace JsonSchemaOrg {
         /**
          * Coordinates of the warehouse with the product
          */
-        warehouseLocation?: Geo;
+        warehouseLocation?: IGeo_;
     }[];
 }
