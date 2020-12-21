@@ -1,5 +1,4 @@
-import { Plugin, PluginContext } from 'dtsgenerator';
-import ts from 'typescript';
+import { ts, Plugin, PluginContext } from 'dtsgenerator';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('./package.json');
@@ -86,7 +85,9 @@ function convertReference(
             const names = getBaseNames(parents);
             const value = searchConvertedValue(converted, names, name);
             if (value != null) {
-                node.typeName = replaceTypeName(node.typeName, value);
+                Object.assign<typeof node, Partial<typeof node>>(node, {
+                    typeName: replaceTypeName(node.typeName, value),
+                });
             }
         }
         return node;
@@ -133,7 +134,9 @@ function changeTypeName<
     if ('type' in config && ts.isTypeAliasDeclaration(node)) {
         result = decorate(name, config.type);
     }
-    node.name = ts.createIdentifier(result);
+    Object.assign<T, Partial<ts.InterfaceDeclaration | ts.TypeAliasDeclaration>>(node, {
+        name: ts.factory.createIdentifier(result),
+    });
     return result;
 }
 
@@ -152,11 +155,11 @@ function getTypeName(node: ts.EntityName): string {
 }
 
 function replaceTypeName(node: ts.EntityName, replaced: string): ts.EntityName {
-    const result = ts.createIdentifier(replaced);
+    const result = ts.factory.createIdentifier(replaced);
     if (ts.isIdentifier(node)) {
         return result;
     } else {
-        return ts.createQualifiedName(node.left, result);
+        return ts.factory.createQualifiedName(node.left, result);
     }
 }
 

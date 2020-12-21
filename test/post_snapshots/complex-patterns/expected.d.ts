@@ -50,7 +50,12 @@ declare namespace JsonSchemaOrg {
                      * 2.5
                      * p3
                      */
-                    p3: [boolean, number, string?, ...any[]];
+                    p3: [
+                        boolean,
+                        number,
+                        string?,
+                        ...any[]
+                    ];
                 }
                 export type _IsDebug_ = false;
                 export type _IsTest_ = true;
