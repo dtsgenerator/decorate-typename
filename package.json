@@ -1,6 +1,6 @@
 {
   "name": "@dtsgenerator/decorate-typename",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "decorate the output typename.",
   "main": "index.js",
   "scripts": {
