@@ -1,7 +1,12 @@
 import { ts, Plugin, PluginContext } from 'dtsgenerator';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const packageJson: {
+    name: string;
+    version: string;
+    description: string;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJson = require('./package.json');
+} = require('./package.json');
 
 const plugin: Plugin = {
     meta: {
@@ -26,6 +31,7 @@ export type Config =
 /**
  * This `postProcess` is the hook for the output AST changing.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 async function postProcess(
     pluginContext: PluginContext
 ): Promise<ts.TransformerFactory<ts.SourceFile> | undefined> {
