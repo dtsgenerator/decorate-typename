@@ -5,7 +5,7 @@ const packageJson: {
     name: string;
     version: string;
     description: string;
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
 } = require('./package.json');
 
 const plugin: Plugin = {
@@ -23,9 +23,9 @@ interface ConfigContent {
 }
 export type Config =
     | {
-        interface: ConfigContent;
-        type: ConfigContent;
-    }
+          interface: ConfigContent;
+          type: ConfigContent;
+      }
     | ConfigContent;
 
 /**
@@ -35,21 +35,20 @@ export type Config =
 async function postProcess(
     pluginContext: PluginContext
 ): Promise<ts.TransformerFactory<ts.SourceFile> | undefined> {
-    return (context: ts.TransformationContext) => (
-        root: ts.SourceFile
-    ): ts.SourceFile => {
-        const option = pluginContext.option;
-        if (option == null || typeof option === 'boolean') {
+    return (context: ts.TransformationContext) =>
+        (root: ts.SourceFile): ts.SourceFile => {
+            const option = pluginContext.option;
+            if (typeof option === 'boolean') {
+                return root;
+            }
+
+            const config = option as Config;
+            const converted = new Map<string, string>();
+
+            root = convertTypeName(context, root, config, converted);
+            root = convertReference(context, root, converted);
             return root;
-        }
-
-        const config = option as Config;
-        const converted = new Map<string, string>();
-
-        root = convertTypeName(context, root, config, converted);
-        root = convertReference(context, root, converted);
-        return root;
-    };
+        };
 }
 
 function convertTypeName(
@@ -101,7 +100,11 @@ function convertReference(
     return ts.visitNode(root, visit);
 }
 
-function searchConvertedValue(converted: Map<string, string>, baseNames: string[], nodeName: string): string | undefined {
+function searchConvertedValue(
+    converted: Map<string, string>,
+    baseNames: string[],
+    nodeName: string
+): string | undefined {
     const names = baseNames.concat();
     for (;;) {
         const name = names.concat(nodeName).join('.');
@@ -140,7 +143,10 @@ function changeTypeName<
     if ('type' in config && ts.isTypeAliasDeclaration(node)) {
         result = decorate(name, config.type);
     }
-    Object.assign<T, Partial<ts.InterfaceDeclaration | ts.TypeAliasDeclaration>>(node, {
+    Object.assign<
+        T,
+        Partial<ts.InterfaceDeclaration | ts.TypeAliasDeclaration>
+    >(node, {
         name: ts.factory.createIdentifier(result),
     });
     return result;
@@ -169,7 +175,10 @@ function replaceTypeName(node: ts.EntityName, replaced: string): ts.EntityName {
     }
 }
 
-function getFullyTypeName(node: ts.InterfaceDeclaration | ts.TypeAliasDeclaration, parents: ts.Node[]): string {
+function getFullyTypeName(
+    node: ts.InterfaceDeclaration | ts.TypeAliasDeclaration,
+    parents: ts.Node[]
+): string {
     const names = getBaseNames(parents);
     names.push(getName(node.name));
     return names.join('.');
