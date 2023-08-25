@@ -33,7 +33,7 @@ export type Config =
  */
 // eslint-disable-next-line @typescript-eslint/require-await
 async function postProcess(
-    pluginContext: PluginContext
+    pluginContext: PluginContext,
 ): Promise<ts.TransformerFactory<ts.SourceFile> | undefined> {
     return (context: ts.TransformationContext) =>
         (root: ts.SourceFile): ts.SourceFile => {
@@ -55,7 +55,7 @@ function convertTypeName(
     context: ts.TransformationContext,
     root: ts.SourceFile,
     config: Config,
-    converted: Map<string, string>
+    converted: Map<string, string>,
 ): ts.SourceFile {
     const parents: ts.Node[] = [root];
     function visit(node: ts.Node): ts.Node {
@@ -72,13 +72,13 @@ function convertTypeName(
         }
         return node;
     }
-    return ts.visitNode(root, visit);
+    return ts.visitNode(root, visit, ts.isSourceFile);
 }
 
 function convertReference(
     context: ts.TransformationContext,
     root: ts.SourceFile,
-    converted: Map<string, string>
+    converted: Map<string, string>,
 ): ts.SourceFile {
     const parents: ts.Node[] = [root];
     function visit(node: ts.Node): ts.Node {
@@ -97,13 +97,13 @@ function convertReference(
         }
         return node;
     }
-    return ts.visitNode(root, visit);
+    return ts.visitNode(root, visit, ts.isSourceFile);
 }
 
 function searchConvertedValue(
     converted: Map<string, string>,
     baseNames: string[],
-    nodeName: string
+    nodeName: string,
 ): string | undefined {
     const names = baseNames.concat();
     for (;;) {
@@ -121,7 +121,7 @@ function searchConvertedValue(
 }
 
 function changeTypeName<
-    T extends ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+    T extends ts.InterfaceDeclaration | ts.TypeAliasDeclaration,
 >(node: T, config: Config): string {
     const name = getName(node.name);
     function decorate(name: string, config: ConfigContent): string {
@@ -177,7 +177,7 @@ function replaceTypeName(node: ts.EntityName, replaced: string): ts.EntityName {
 
 function getFullyTypeName(
     node: ts.InterfaceDeclaration | ts.TypeAliasDeclaration,
-    parents: ts.Node[]
+    parents: ts.Node[],
 ): string {
     const names = getBaseNames(parents);
     names.push(getName(node.name));
